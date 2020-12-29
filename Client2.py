@@ -19,4 +19,7 @@ while True:
 
 TCPClientSocket.connect((host, values_message[2]))
 print('Received offer from {0}, attempting to connect...'.format(addr[0]))
-TCPClientSocket.sendto('game_overrr'.encode(),addr)
+TCPClientSocket.sendto('Client2'.encode(),addr)
+
+game_message = TCPClientSocket.recvfrom(1024)
+print(game_message)
