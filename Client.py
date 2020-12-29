@@ -9,29 +9,14 @@ UDPClientSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
 print("Client started, listening for offer requests...")
 UDPClientSocket.bind(("",PORT))
 values_message = None
+addr = None
 while True:
   message,addr = UDPClientSocket.recvfrom(1024)
+  host  = addr[0]
   values_message = struct.unpack("Ibh",message)
-  print(addr)
   if hex(values_message[0]) == '0xfeedbeef' and hex(values_message[1]) == '0x2' :
     break
 
-print('Received offer from 172.1.0.4, attempting to connect...')
-
-  
-  
-  
-  
-
-  
-
-# client.connect((SERVER, PORT))
-# client.sendall(bytes("This is from Client",'UTF-8'))
-# while True:
-  
-#   print("From Server :" ,in_data.decode())
-#   out_data = input()
-#   client.sendall(bytes(out_data,'UTF-8'))
-#   if out_data=='bye':
-#       break
-# client.close()
+TCPClientSocket.connect((host, values_message[2]))
+print('Received offer from {0}, attempting to connect...'.format(addr[0]))
+TCPClientSocket.sendto('game_over'.encode(),addr)

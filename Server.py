@@ -3,6 +3,7 @@ import time
 import threading
 import struct
 
+PLAYERS = []
 def send_thread_interval():
     threading.Timer(interval=1.0,function=send_thread_interval).start()
     sendBraodcast()
@@ -19,25 +20,22 @@ class ClientThread(threading.Thread):
         print ("New connection added: ", clientAddress)
 
     def run(self):
-        print ("Connection from : ", clientAddress)
-        msg = ''
-        while True:
-            data = self.csocket.recv(2048)
-            msg = data.decode()
-            if msg=='bye':
-              break
-            print ("from client", msg)
-            self.csocket.send(bytes(msg,'UTF-8'))
-        print ("Client at ", clientAddress , " disconnected...")
+        group_name= self.csocket.recvfrom(1024)
+        print(repr(group_name[0]))
+        PLAYERS.append(group_name)
+        
 
-HOST = "127.0.0.1"
-PORT   = 2027
+hostname = socket.gethostname()
+local_ip = socket.gethostbyname(hostname)
+
+PORT = 2027
 # Create a datagram socket
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 TCPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 # Bind to address and ip
-TCPServerSocket.bind((HOST, PORT))
-print("Server started,listening on IP address",HOST)
+TCPServerSocket.bind((local_ip, PORT))
+
+print("Server started,listening on IP address",local_ip)
 UDPServerSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
 send_thread_interval()
 
