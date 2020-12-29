@@ -4,7 +4,8 @@ import threading
 import struct
 
 def send_thread_interval():
-    threading.Timer(interval=1.0,function=sendBraodcast).start()
+    threading.Timer(interval=1.0,function=send_thread_interval).start()
+    sendBraodcast()
 
 def sendBraodcast():
     message = struct.pack("Ibh", 0xfeedbeef, 0x2,PORT)

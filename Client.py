@@ -8,12 +8,16 @@ UDPClientSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
 
 print("Client started, listening for offer requests...")
 UDPClientSocket.bind(("",PORT))
-
+values_message = None
 while True:
   message,addr = UDPClientSocket.recvfrom(1024)
-  if message:
-    print("yes")
-  print(struct.unpack("QQQ",message))
+  values_message = struct.unpack("Ibh",message)
+  print(addr)
+  if hex(values_message[0]) == '0xfeedbeef' and hex(values_message[1]) == '0x2' :
+    break
+
+print('Received offer from 172.1.0.4, attempting to connect...')
+
   
   
   
