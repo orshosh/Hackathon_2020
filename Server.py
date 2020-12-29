@@ -7,6 +7,7 @@ PLAYERS = []
 def send_thread_interval():
     threading.Timer(interval=1.0,function=send_thread_interval).start()
     sendBraodcast()
+    
 
 def sendBraodcast():
     message = struct.pack("Ibh", 0xfeedbeef, 0x2,PORT)
@@ -20,8 +21,10 @@ class ClientThread(threading.Thread):
         print ("New connection added: ", clientAddress)
 
     def run(self):
-        group_name= self.csocket.recvfrom(1024)
-        print(repr(group_name[0]))
+        group_name, sourceAddress = self.csocket.recv(1024)
+        # rcvMessage = struct.unpack(group_name)
+        print(group_name)
+        print (sourceAddress[0])
         PLAYERS.append(group_name)
         
 
@@ -40,7 +43,9 @@ UDPServerSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
 send_thread_interval()
 
 # Listen for incoming datagrams
-while(True):
+listenToClients = True
+playGoing = False
+while(listenToClients):
     TCPServerSocket.listen(1)
     clientsock, clientAddress = TCPServerSocket.accept()
     newthread = ClientThread(clientAddress, clientsock)

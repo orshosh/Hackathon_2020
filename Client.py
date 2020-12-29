@@ -12,6 +12,8 @@ values_message = None
 addr = None
 while True:
   message,addr = UDPClientSocket.recvfrom(1024)
+  print("message : {}".format(message))
+  print("addr : {} ".format(addr))
   host  = addr[0]
   values_message = struct.unpack("Ibh",message)
   if hex(values_message[0]) == '0xfeedbeef' and hex(values_message[1]) == '0x2' :
@@ -19,4 +21,8 @@ while True:
 
 TCPClientSocket.connect((host, values_message[2]))
 print('Received offer from {0}, attempting to connect...'.format(addr[0]))
-TCPClientSocket.sendto('game_over'.encode(),addr)
+# message = struct.pack("Game_Over")
+TCPClientSocket.sendall(b"Game_Over")
+print(addr[0] )
+print(addr[1])
+# TCPClientSocket.sendto('game_overrr'.encode(),addr)
