@@ -1,6 +1,6 @@
 import socket
 import struct
-import sys
+import getche
 
 
 def send_group_name():
@@ -8,12 +8,12 @@ def send_group_name():
   TCPClientSocket.sendto(group_name.encode('UTF-8','strict'),addr)
 
 def start_game():
+  print("instart_game")
   while True:
-    char = sys.stdin.fileno()
-    TCPClientSocket.sendto(char.encode(('UTF-8','strict'),addr))
-    flag_to_stop,adress = TCPClientSocket.recvfrom(1024)
-    if flag_to_stop.decode('UTF-8','strict') == False:
-      break
+    if getche.kbhit():
+        key = getche.getche()
+        TCPClientSocket.sendto(key,addr)
+        print("Key is {}".format(key))
 
 def TCPconnect_server(port,source):
   print(source[0],port)
