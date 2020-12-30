@@ -3,10 +3,13 @@ import time
 import threading
 import struct
 import sys
+import keyword
 
 Group1 = []
 Group2 = []
 PLAYERS = {}
+Group1_counter = 0
+Group2_counter = 0
 
 
 def send_thread_interval():
@@ -17,6 +20,24 @@ def send_thread_interval():
 def sendBraodcast():
     message = struct.pack("Ibh", 0xfeedbeef, 0x2,PORT)
     UDPServerSocket.sendto(message,("<broadcast>",13117))
+
+def get_winner():
+    if Group1_counter > Group2_counter:
+        return Group1
+    else:
+        return Group2
+
+def final_game():
+    winner = get_winner()
+    final_message = "GAME OVER!\nGroup 1 typed in"
+    final_message += Group1_counter
+    final_message += "characters.Group 2 typed in"
+    final_message += Group2_counter
+    final_message += "characters.\n"
+    final_message += winner
+    final_message += "wins!\n\nCongratulations to the winners:\n\n==\n"
+    for group in winner:
+        final_message += group
 
 def write_msg():
     game_message = "Welcome to Keyboard Spamming Battle Royale.\nGroup 1:\n==\n"
@@ -39,17 +60,21 @@ def run_game(client_socket,client_address):
             if not char is None:
                 count_char +=1
                 print(count_char)
-            else:
-                print("no")
         except:
             pass
+    return count_char
     
-
-
+    
 def start_game():
     for key in PLAYERS:
-        game_thread = threading.Thread(target = run_game,args=PLAYERS[key])
-        game_thread.start()
+        # game_thread = threading.Thread(target = run_game,args=PLAYERS[key])
+        game_thread = exextutor.submit(run_game,PLAYERS[key])
+        counter = game_thread.result()
+        if key in Group1:
+            Group1_counter += counter
+        else:
+            Group2_counter += counter
+
 
 
 class ClientThread(threading.Thread):
@@ -69,13 +94,12 @@ class ClientThread(threading.Thread):
             Group2.append(group_name.decode('UTF-8','strict'))
         
 
-
 hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
 PORT = 2027
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 TCPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-TCPServerSocket.bind((local_ip, PORT))
+TCPServerSocket.bind(('', PORT))
 
 print("Server started,listening on IP address",local_ip)
 UDPServerSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)

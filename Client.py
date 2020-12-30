@@ -2,10 +2,6 @@ import socket
 import struct
 import msvcrt
 
-
-
-
-
 def send_group_name():
   group_name = "slow-start\n"
   TCPClientSocket.sendto(group_name.encode('UTF-8','strict'),addr)
@@ -13,9 +9,14 @@ def send_group_name():
 def start_game():
   print("instart_game")
   while True:
-    if msvcrt.kbhit():
-        TCPClientSocket.send(msvcrt.getch().encode())
-  
+    # key = getch.getch()
+    # str_key = str(key)
+    key = keyboard.read_key()
+    if key:
+        # send_key = bytes(str_key, 'utf-8')
+        send_key = bytes(key, 'utf-8')
+        tcp_sock.sendall(send_key)
+
 
 def TCPconnect_server(port,source):
   print(source[0],port)
