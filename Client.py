@@ -18,7 +18,8 @@ def start_game():
   
 
 def TCPconnect_server(port,source):
-  TCPClientSocket.connect((source[0], values_message[2]))
+  print(source[0],port)
+  TCPClientSocket.connect((source[0], port))
   print('Received offer from {0}, attempting to connect...'.format(source[0]))
   send_group_name()
   while True:
@@ -50,3 +51,4 @@ while True:
 
 UDPClientSocket.close()
 TCPconnect_server(port=values_message[2],source=addr)
+
