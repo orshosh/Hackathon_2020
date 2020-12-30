@@ -6,6 +6,8 @@ import struct
 Group1 = []
 Group2 = []
 PLAYERS = []
+
+
 def send_thread_interval():
     threading.Timer(interval=1.0,function=send_thread_interval).start()
     sendBraodcast()
@@ -14,6 +16,7 @@ def send_thread_interval():
 def sendBraodcast():
     message = struct.pack("Ibh", 0xfeedbeef, 0x2,PORT)
     UDPServerSocket.sendto(message,("<broadcast>",13117))
+
 
 # def run_game(ip,host):
 #     print(ip,host)
@@ -46,15 +49,15 @@ class ClientThread(threading.Thread):
             Group1.append(group_name.decode("utf-8"))
         elif len(Group1)>len(Group2):
             Group2.append(group_name.decode("utf-8"))
-        
+
+
+
 
 hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
 PORT = 2027
-# Create a datagram socket
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 TCPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-# Bind to address and ip
 TCPServerSocket.bind((local_ip, PORT))
 
 print("Server started,listening on IP address",local_ip)
@@ -72,14 +75,6 @@ try:
         newthread.start()
 except socket.timeout as TimeOutException:
     start_game(number_of_players)
-
-# while True:  
-#     TCPServerSocket.listen(1)
-#     clientsock, clientAddress = TCPServerSocket.accept()
-#     newthread = ClientThread(clientAddress, clientsock)
-#     number_of_players += 1
-#     newthread.start()
-
 
 
 
