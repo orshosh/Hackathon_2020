@@ -60,13 +60,13 @@ local_ip = socket.gethostbyname(hostname)
 PORT = 2027
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 TCPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-TCPServerSocket.bind((local_ip, PORT))
+TCPServerSocket.bind(('', PORT))
 
 print("Server started,listening on IP address",local_ip)
 UDPServerSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
 send_thread_interval()
 
-TCPServerSocket.settimeout(20.0)
+TCPServerSocket.settimeout(10.0)
 try:
     while True:  
         TCPServerSocket.listen(1)
