@@ -33,11 +33,17 @@ def run_game(client_socket,client_address):
     client_socket.sendto(game_message.encode('UTF-8','strict'),client_address)
     start_time = time.time()
     count_char = 0
-    while not(time.time() - start_time == 10):
-        char,address = client_socket.recv(1024)
-        if not char is None:
-            count_char +=1
-    print(count_char)
+    while time.time() - start_time < 10:
+        try:
+            char = client_socket.recv(1024)
+            if not char is None:
+                count_char +=1
+                print(count_char)
+            else:
+                print("no")
+        except:
+            pass
+    
 
 
 def start_game():
@@ -61,6 +67,7 @@ class ClientThread(threading.Thread):
             Group1.append(group_name.decode('UTF-8','strict'))
         elif len(Group1)>len(Group2):
             Group2.append(group_name.decode('UTF-8','strict'))
+        
 
 
 hostname = socket.gethostname()
@@ -82,6 +89,7 @@ try:
         newthread = ClientThread(clientAddress, clientsock)
         newthread.start()
 except socket.timeout as TimeOutException:
+    UDPServerSocket.close()
     start_game()
 
 
