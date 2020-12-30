@@ -3,14 +3,22 @@ import struct
 
 
 def send_group_name():
-  group_name = b"game_over"
-  TCPClientSocket.sendto(group_name,addr)
+  group_name = "game_over\n"
+  TCPClientSocket.sendto(group_name.encode('UTF-8','strict'),addr)
 
 
-def connect_server(ip,port,source):
-  TCPClientSocket.connect((host, values_message[2]))
-  print('Received offer from {0}, attempting to connect...'.format(addr[0]))
+def TCPconnect_server(port,source):
+  TCPClientSocket.connect((source[0], values_message[2]))
+  print('Received offer from {0}, attempting to connect...'.format(source[0]))
   send_group_name()
+  while True:
+    message,addr = TCPClientSocket.recvfrom(1024)
+    try:
+      if not message is None:
+        print(message.decode('UTF-8','strict'))
+    except:
+      continue
+
 
 
 PORT = 13117
@@ -24,8 +32,12 @@ values_message = None
 addr = None
 while True:
   message,addr = UDPClientSocket.recvfrom(1024)
-  host  = addr[0]
-  values_message = struct.unpack("Ibh",message)
-  if hex(values_message[0]) == '0xfeedbeef' and hex(values_message[1]) == '0x2' :
-    break
-connect_server(host,values_message[2],addr)
+  try:
+    values_message = struct.unpack("Ibh",message)
+    if (not message is None) and (hex(values_message[0]) == '0xfeedbeef') and (hex(values_message[1]) == '0x2') :
+      break
+  except:
+      continue
+
+UDPClientSocket.close()
+TCPconnect_server(port=values_message[2],source=addr)
