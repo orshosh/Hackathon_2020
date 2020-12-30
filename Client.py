@@ -1,11 +1,19 @@
 import socket
 import struct
+import sys
 
 
 def send_group_name():
   group_name = "game_over\n"
   TCPClientSocket.sendto(group_name.encode('UTF-8','strict'),addr)
 
+def start_game():
+  while True:
+    char = sys.stdin.fileno()
+    TCPClientSocket.sendto(char.encode(('UTF-8','strict'),addr))
+    flag_to_stop,adress = TCPClientSocket.recvfrom(1024)
+    if flag_to_stop.decode('UTF-8','strict') == False:
+      break
 
 def TCPconnect_server(port,source):
   print(source[0],port)
@@ -13,7 +21,7 @@ def TCPconnect_server(port,source):
   print('Received offer from {0}, attempting to connect...'.format(source[0]))
   send_group_name()
   while True:
-    message,addr = TCPClientSocket.recvfrom(1024)
+    message = TCPClientSocket.recvfrom(1024)
     try:
       if not message is None:
         print(message.decode('UTF-8','strict'))

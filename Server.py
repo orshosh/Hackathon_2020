@@ -2,6 +2,7 @@ import socket
 import time
 import threading
 import struct
+import sys
 
 Group1 = []
 Group2 = []
@@ -30,6 +31,13 @@ def write_msg():
 def run_game(client_socket,client_address):
     game_message = write_msg()
     client_socket.sendto(game_message.encode('UTF-8','strict'),client_address)
+    start_time = time.time()
+    count_char = 0
+    while not(time.time() - start_time == 10):
+        char,address = client_socket.recv(1024)
+        if not char is None:
+            count_char +=1
+    print(count_char)
 
 
 def start_game():
