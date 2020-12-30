@@ -2,6 +2,7 @@ import socket
 import time
 import threading
 import struct
+import sys
 
 Group1 = []
 Group2 = []
@@ -30,6 +31,13 @@ def write_msg():
 def run_game(client_socket,client_address):
     game_message = write_msg()
     client_socket.sendto(game_message.encode('UTF-8','strict'),client_address)
+    start_time = time.time()
+    count_char = 0
+    while not(time.time() - start_time == 10):
+        char,address = client_socket.recv(1024)
+        if not char is None:
+            count_char +=1
+    print(count_char)
 
 
 def start_game():
@@ -60,13 +68,13 @@ local_ip = socket.gethostbyname(hostname)
 PORT = 2027
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 TCPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-TCPServerSocket.bind((local_ip, PORT))
+TCPServerSocket.bind(('', PORT))
 
 print("Server started,listening on IP address",local_ip)
 UDPServerSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
 send_thread_interval()
 
-TCPServerSocket.settimeout(20.0)
+TCPServerSocket.settimeout(10.0)
 try:
     while True:  
         TCPServerSocket.listen(1)
