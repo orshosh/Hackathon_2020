@@ -14,7 +14,21 @@ Group2_counter = 0
 buffer_size = 1024  
 kill_thread = True
 
-
+def start_over(TCPServerSocket):
+    global Group1
+    Group1=[]
+    global Group2
+    Group2=[]
+    global PLAYERS
+    PLAYERS={}
+    global Group1_counter
+    Group1_counter = 0
+    global Group2_counter
+    Group2_counter = 0
+    global kill_thread
+    kill_thread = True
+    TCPServerSocket.close()
+    main_server()
 
 #send a broadcast every set time.
 def send_thread_interval(port,UDPServerSocket):
@@ -66,7 +80,7 @@ def start_game():
         game_thread = threading.Thread(target=run_game,args=(PLAYERS[key][0],PLAYERS[key][1],key))
         game_thread.start()
     game_thread.join()
-    finish_game()
+    finish_game(PLAYERS[key][0],PLAYERS[key][1])
 
 
  #Function send the game message to the client via the relevant socket
@@ -86,9 +100,10 @@ def run_game(client_socket,client_address,client_name):
     insret_count(count_char,client_name)
        
 #when game is finished, the function creates the final message and sends it to each player
-def finish_game():
+def finish_game(client_socket,client_address):
     winner_list, winner = get_winner()
     message = final_msg(winner_list,winner)
+    client_socket.sendto(message.encode('UTF-8','strict'),client_address)
     print(message)
     for key in PLAYERS:
         client_socket = PLAYERS[key][0]
@@ -160,6 +175,8 @@ def main_server():
     global kill_thread
     kill_thread = False
     start_game()
+    start_over(TCPServerSocket)
+
 
 if __name__ == "__main__":
     # execute only if run as a script
