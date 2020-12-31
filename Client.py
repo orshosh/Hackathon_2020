@@ -1,6 +1,7 @@
 import socket
 import struct
 import msvcrt
+import keyboard
 
 def send_group_name():
   group_name = "slow-start\n"
@@ -9,13 +10,11 @@ def send_group_name():
 def start_game():
   print("instart_game")
   while True:
-    # key = getch.getch()
-    # str_key = str(key)
     key = keyboard.read_key()
     if key:
-        # send_key = bytes(str_key, 'utf-8')
         send_key = bytes(key, 'utf-8')
-        tcp_sock.sendall(send_key)
+        TCPClientSocket.sendall(send_key)
+        print(key)
 
 
 def TCPconnect_server(port,source):
@@ -32,24 +31,25 @@ def TCPconnect_server(port,source):
     except:
       continue
 
+
 PORT = 13117
 UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 TCPClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 UDPClientSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
 
 print("Client started, listening for offer requests...")
-UDPClientSocket.bind(("",PORT))
+UDPClientSocket.bind(('',PORT))
 values_message = None
 addr = None
 while True:
   message,addr = UDPClientSocket.recvfrom(1024)
-  try:
-    values_message = struct.unpack("Ibh",message)
-    if (not message is None) and (hex(values_message[0]) == '0xfeedbeef') and (hex(values_message[1]) == '0x2') :
-      break
-  except:
-      continue
+  values_message = struct.unpack("Ibh",message)
+  if (not message is None) and (hex(values_message[0]) == '0xfeedbeef') and (hex(values_message[1]) == '0x2') :
+    
+    break
 
 UDPClientSocket.close()
-TCPconnect_server(port=values_message[2],source=addr)
+# TCPconnect_server(port=values_message[2],source=addr)
+TCPconnect_server(port=2027,source=addr)
+
 
