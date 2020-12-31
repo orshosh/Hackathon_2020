@@ -138,7 +138,7 @@ class ClientThread(threading.Thread):
         print ("New connection added: ", clientAddress)
 
     def run(self):
-        group_name = self.csocket.recv(1024)
+        group_name = self.csocket.recv(buffer_size)
         g_name_code = group_name.decode('UTF-8','strict')
         PLAYERS[g_name_code] = (self.csocket,self.caddress)
         if len(Group1) == len(Group2):
@@ -179,7 +179,6 @@ def main_server():
 
 
 if __name__ == "__main__":
-    # execute only if run as a script
     main_server()
 
 

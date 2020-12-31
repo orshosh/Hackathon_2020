@@ -24,7 +24,7 @@ def start_game(socket, loop_stop):
         socket.sendall(send_key)
         print(key)
         try:
-          message,addr = socket.recvfrom(1024)
+          message,addr = socket.recvfrom(buffer_size)
           if not message is None:
             print(message.decode('UTF-8','strict'))
             loop_stop = False
@@ -43,7 +43,7 @@ def TCPconnect_server(port,source,socket):
   while loop_status:
     socket.settimeout(0.2)
     try:
-      message,addr = socket.recvfrom(1024)
+      message,addr = socket.recvfrom(buffer_size)
       if not message is None:
         print(message.decode('UTF-8','strict'))
         finish_status = start_game(socket,True)
