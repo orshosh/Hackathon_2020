@@ -14,9 +14,11 @@ Group2_counter = 0
   
 
 def send_thread_interval():
-    threading.Timer(interval=1.0,function=send_thread_interval).start()
-    sendBraodcast()
-            
+    global kill_thread
+    if kill_thread:
+        threading.Timer(interval=1.0,function=send_thread_interval).start()
+        sendBraodcast()
+       
 def sendBraodcast():
     print("send")
     message = struct.pack("Ibh", 0xfeedbeef, 0x2,PORT)
@@ -68,6 +70,7 @@ def start_game():
     for key in PLAYERS:
         game_thread = threading.Thread(target=run_game,args=(PLAYERS[key][0],PLAYERS[key][1],key))
         game_thread.start()
+    game_thread.join()
     finish_game()
     
 
@@ -79,17 +82,19 @@ def finish_game():
         client_socket = PLAYERS[key][0]
         client_address = PLAYERS[key][1]
         print("Game over, sending out offer requests...")
-        # client_socket.close()
+        client_socket.close()
 
 
 def final_msg(winner_list, winner):
-    final_message = "GAME OVER!\nGroup 1 typed in"
+    global Group1_counter
+    global Group2_counter
+    final_message = "GAME OVER!\nGroup 1 typed in "
     final_message += str(Group1_counter)
-    final_message += "characters.Group 2 typed in"
+    final_message += "characters.Group 2 typed in "
     final_message += str(Group2_counter)
-    final_message += "characters.\n"
+    final_message += " characters.\n"
     final_message += winner
-    final_message += "wins!\n\nCongratulations to the winners:\n\n==\n"
+    final_message += " wins!\n\nCongratulations to the winners:\n\n==\n"
     for group in winner_list:
         final_message += group
     return final_message 
@@ -118,10 +123,11 @@ PORT = 2027
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 TCPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 TCPServerSocket.bind(('', PORT))
-TCPServerSocket.listen()
+TCPServerSocket.listen(1)
 
 print("Server started,listening on IP address",local_ip)
 UDPServerSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
+kill_thread = True
 broadcast_thread = threading.Thread(target=send_thread_interval)
 broadcast_thread.start()
 
@@ -135,6 +141,7 @@ while len(PLAYERS) == 0:
             newthread.start()
         except:
             continue
+kill_thread = False
 start_game()
 
 
