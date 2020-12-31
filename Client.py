@@ -20,7 +20,6 @@ def start_game():
 #sends the group name back to server via "send_group_name()"
 #wait for game start message to return and then starts playing 
 def TCPconnect_server(port,source):
-  print(source[0],port)
   TCPClientSocket.connect((source[0], port))
   print('Received offer from {0}, attempting to connect...'.format(source[0]))
   send_group_name()
@@ -59,3 +58,6 @@ UDPClientSocket.close() #no need to keep listening to UDP port while game is in 
 TCPconnect_server(port=2027,source=addr)
 
 
+# if __name__ == "__main__":
+#     # execute only if run as a script
+#     main_client()

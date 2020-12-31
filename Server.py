@@ -11,21 +11,22 @@ Group2 = []
 PLAYERS = {}
 Group1_counter = 0
 Group2_counter = 0
- buffer_size = 1024  
+buffer_size = 1024  
+kill_thread = True
 
 
 
 #send a broadcast every set time.
-def send_thread_interval():
+def send_thread_interval(port,UDPServerSocket):
     global kill_thread
     if kill_thread:
-        threading.Timer(interval=1.0,function=send_thread_interval).start()
-        sendBraodcast()
+        threading.Timer(interval=1.0,function=send_thread_interval,args=(port,UDPServerSocket)).start()
+        sendBraodcast(port,UDPServerSocket)
 
 # build the message and sent to all available using UDP socket boradcast     
-def sendBraodcast():
+def sendBraodcast(port,UDPServerSocket):
     print("send")
-    message = struct.pack("Ibh", 0xfeedbeef, 0x2,PORT)
+    message = struct.pack("Ibh", 0xfeedbeef, 0x2,port)
     UDPServerSocket.sendto(message,("<broadcast>",13117))
 
 def get_winner():
@@ -130,36 +131,39 @@ class ClientThread(threading.Thread):
         elif len(Group1)>len(Group2):
             Group2.append(g_name_code)
         
+def main_server():
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname) #ip of local machine running the code
+    PORT = 2027
+    #creating needed sockets for server
+    UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+    TCPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+    TCPServerSocket.bind(('', PORT))
+    TCPServerSocket.listen(1)
 
-hostname = socket.gethostname()
-local_ip = socket.gethostbyname(hostname) #ip of local machine running the code
-PORT = 2027
-#creating needed sockets for server
-UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-TCPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-TCPServerSocket.bind(('', PORT))
-TCPServerSocket.listen(1)
+    print("Server started,listening on IP address",local_ip)
+    UDPServerSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
+    send_thread_interval(PORT,UDPServerSocket)
+    # broadcast_thread = threading.Thread(target=send_thread_interval)
+    # broadcast_thread.start()
 
-print("Server started,listening on IP address",local_ip)
-UDPServerSocket.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
-kill_thread = True
-broadcast_thread = threading.Thread(target=send_thread_interval)
-broadcast_thread.start()
+    tmp_timp = time.time()
+    while len(PLAYERS) == 0: #wait for at least one player to join game.
+        while time.time() - tmp_timp < 10:  #when 10 seconds are finished , the game will start
+            try:
+                TCPServerSocket.settimeout(0.5)
+                clientsock, clientAddress = TCPServerSocket.accept()
+                newthread = ClientThread(clientAddress, clientsock)#new thread foe each client connected
+                newthread.start()
+            except:
+                continue
+    global kill_thread
+    kill_thread = False
+    start_game()
 
-tmp_timp = time.time()
-while len(PLAYERS) == 0: #wait for at least one player to join game.
-    while time.time() - tmp_timp < 10:  #when 10 seconds are finished , the game will start
-        try:
-            TCPServerSocket.settimeout(0.5)
-            clientsock, clientAddress = TCPServerSocket.accept()
-            newthread = ClientThread(clientAddress, clientsock)#new thread foe each client connected
-            newthread.start()
-        except:
-            continue
-kill_thread = False
-start_game()
-
-
+if __name__ == "__main__":
+    # execute only if run as a script
+    main_server()
 
 
 
